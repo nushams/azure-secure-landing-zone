@@ -68,6 +68,5 @@ resource "azurerm_kubernetes_cluster_node_pool" "k8s-worker" {
   zones                 = each.value.zones
   vnet_subnet_id        = var.az_subnet_id
   tags                  = each.value.tags
-
-  node_labels = each.value.node_labels
+  node_labels           = each.value.node_labels
 }

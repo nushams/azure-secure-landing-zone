@@ -1,16 +1,16 @@
 variable "display_name" {
-  type = string
+  type        = string
   description = "User display name"
 }
 
 variable "password" {
-  type = string
+  type        = string
   description = "User's password"
-  sensitive = true
+  sensitive   = true
 }
 
 variable "user_principal_name" {
-  type = string
+  type        = string
   description = "User principal name"
-  sensitive = true
+  sensitive   = true
 }
