@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">=0.12"
+  required_version = ">=1.7.5"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.69"
+      version = "~> 4.0"
     }
   }
 }
@@ -14,16 +14,25 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+  subscription_id = var.subscription_id
 }
 
 resource "azurerm_resource_group" "hub-vnet-rg" {
   name     = "${var.hub_prefix}-rg"
   location = var.location
+
+  tags = {
+    env = "prod"
+  }
 }
 
 resource "azurerm_resource_group" "spoke1-vnet-rg" {
   name     = "${var.spoke1_prefix}-rg"
   location = var.location
+
+  tags = {
+    env = "prod"
+  }
 }
 
 resource "azurerm_virtual_network" "hub-vnet" {
@@ -90,11 +99,15 @@ resource "azurerm_private_dns_zone" "dns_zone" {
 }
 
 # Private DNS Zone Virtual Network Link
-resource "azurerm_private_dns_zone_virtual_network_link" "dsn_vnet_link" {
+resource "azurerm_private_dns_zone_virtual_network_link" "dns_vnet_link" {
   name                  = "dns-vnet-link"
   resource_group_name   = azurerm_resource_group.hub-vnet-rg.name
   private_dns_zone_name = azurerm_private_dns_zone.dns_zone.name
   virtual_network_id    = azurerm_virtual_network.hub-vnet.id
+
+  tags = {
+    env = "prod"
+  }
 }
 
 resource "azurerm_network_security_group" "nsg-hub" {
@@ -102,15 +115,19 @@ resource "azurerm_network_security_group" "nsg-hub" {
   location            = azurerm_resource_group.hub-vnet-rg.location
   resource_group_name = azurerm_resource_group.hub-vnet-rg.name
   security_rule {
-    name                       = "allow-rdp"
+    name                       = "allow-aks"
     priority                   = 100
     direction                  = "Inbound"
-    access                     = "Deny"
+    access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = 3389
-    source_address_prefix      = "*"
+    destination_port_ranges    = ["3389", "22"]
+    source_address_prefix      = "10.1.0.0/24"
     destination_address_prefix = "*"
+  }
+
+  tags = {
+    env = "prod"
   }
 }
 
@@ -119,16 +136,34 @@ resource "azurerm_network_security_group" "nsg-spoke1" {
   location            = azurerm_resource_group.spoke1-vnet-rg.location
   resource_group_name = azurerm_resource_group.spoke1-vnet-rg.name
   security_rule {
-    name                       = "allow-rdp"
+    name                       = "allow-hub-to-aks"
     priority                   = 100
     direction                  = "Inbound"
-    access                     = "Deny"
+    access                     = "Allow"
     protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = 3389
-    source_address_prefix      = "*"
+    source_address_prefixes    = ["10.0.0.64/27"]
     destination_address_prefix = "*"
+    source_port_range          = "*"
+    destination_port_ranges    = ["443"]
   }
+
+  tags = {
+    env = "prod"
+  }
+}
+
+resource "azurerm_network_security_rule" "example" {
+  name                        = "deny-all-inbound"
+  priority                    = 200
+  direction                   = "Inbound"
+  access                      = "Deny"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.spoke1-vnet-rg.name
+  network_security_group_name = azurerm_network_security_group.nsg-spoke1.name
 }
 
 resource "azurerm_virtual_network_peering" "hub-spoke1-peer" {
@@ -163,6 +198,10 @@ resource "azurerm_public_ip" "hub-vpn-gateway1-pip" {
   resource_group_name = azurerm_resource_group.hub-vnet-rg.name
 
   allocation_method = "Dynamic"
+
+  tags = {
+    env = "prod"
+  }
 }
 
 resource "azurerm_virtual_network_gateway" "hub-vnet-gateway" {
