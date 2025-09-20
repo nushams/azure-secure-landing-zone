@@ -14,3 +14,8 @@ variable "user_principal_name" {
   description = "User principal name"
   sensitive   = true
 }
+
+variable "subscription_id" {
+  type        = string
+  description = "Azure subscription ID"
+}

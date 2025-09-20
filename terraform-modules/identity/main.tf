@@ -1,22 +1,21 @@
 terraform {
-  required_version = ">=0.12"
+  required_version = ">=1.7.5"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.69"
+      version = "~> 4.0"
     }
   }
 }
 
 provider "azurerm" {
   features {}
+  subscription_id = var.subscription_id
 }
 
 data "azurerm_client_config" "current" {}
 
 data "azuread_client_config" "current" {}
-
-data "azurerm_subscription" "primary" {}
 
 data "azurerm_role_definition" "owner" {
   name = "Owner"
@@ -42,14 +41,14 @@ resource "azuread_group" "platform_admins" {
 }
 
 resource "azurerm_role_assignment" "sp-tenant-global-admin-user-access-role-assignment" {
-  scope                = data.azurerm_subscription.primary.id
+  scope                = "/subscriptions/${var.subscription_id}"
   role_definition_name = data.azurerm_role_definition.owner.name
   principal_id         = azuread_group.platform_admins.id
 }
 
 resource "azurerm_pim_active_role_assignment" "pim" {
-  scope              = data.azurerm_subscription.primary.id
-  role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.owner.id}"
+  scope              = "/subscriptions/${var.subscription_id}"
+  role_definition_id = "/subscriptions/${var.subscription_id}${data.azurerm_role_definition.owner.id}"
   principal_id       = data.azurerm_client_config.current.object_id
 
   schedule {
