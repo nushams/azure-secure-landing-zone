@@ -30,6 +30,7 @@ output "node_resource_group_id" {
   value       = azurerm_kubernetes_cluster.k8s.node_resource_group_id
 }
 
-output "managed_identity" {
-  value = azurerm_kubernetes_cluster.k8s.identity[0].principal_id
+output "workload_identity" {
+  description = "The client ID of the created managed identity to use for the annotation 'azure.workload.identity/client-id' on your service account"
+  value       = azurerm_user_assigned_identity.workload_identity.principal_id
 }
