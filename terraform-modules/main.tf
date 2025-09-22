@@ -8,7 +8,6 @@ terraform {
 }
 
 provider "azurerm" {
-  skip_provider_registration = true
   features {}
   subscription_id = var.subscription_id
   client_id       = var.client_id
@@ -17,13 +16,20 @@ provider "azurerm" {
 }
 
 module "networking" {
-  source = "./networking"
+  source                = "./networking"
+  subscription_id       = var.subscription_id
+  password              = var.password
+  shared_key            = var.shared_key
+  private_dns_zone_name = var.private_dns_zone_name
 }
 
 module "aks" {
-  source       = "./aks"
-  az_subnet_id = module.networking.az_subnet_id
-  az_rg_name   = module.networking.az_rg_name
+  source          = "./aks"
+  az_subnet_id    = module.networking.az_subnet_id
+  az_rg_name      = module.networking.az_rg_name
+  location        = var.location
+  subscription_id = var.subscription_id
+  depends_on      = [module.networking]
 }
 
 module "identity" {
@@ -31,36 +37,38 @@ module "identity" {
   display_name        = var.display_name
   password            = var.password
   user_principal_name = var.user_principal_name
+  subscription_id     = var.subscription_id
 }
 
-locals {
-  policy_definition_file = csvdecode(file("${path.root}/definition/def-policy-csv/policyname.csv"))
-  policy_data            = { for name, file in data.local_file.definition_file : name => jsondecode(file.content) }
-}
+# locals {
+#   policy_definition_file = csvdecode(file("${path.root}/policy/definition/def-policy-csv/policyname.csv"))
+#   policy_data            = { for name, file in data.local_file.definition_file : name => jsondecode(file.content) }
+# }
 
-data "local_file" "definition_file" {
-  for_each = { for n, v in local.policy_definition_file : n => v }
-  filename = "${path.root}/definition/${each.value.policy_ids}.json"
-}
+# data "local_file" "definition_file" {
+#   for_each = { for n, v in local.policy_definition_file : n => v }
+#   filename = "${path.root}/policy/definition/${each.value.policy_ids}.json"
+# }
 
 module "policy_def" {
-  source               = "./policy"
-  policy_definition    = local.policy_data
+  source = "./policy"
+  # policy_definition    = local.policy_data
   subscription_id      = var.subscription_id
-  location             = var.allowed_locations
+  allowed_locations    = var.allowed_locations
   tenant_id            = var.tenant_id
   key_vault_id         = module.key_vault.key_vault_id
-  managed_identity     = module.aks.managed_identity
+  workload_identity    = module.aks.workload_identity
   keypermissionspolicy = ["Get", "List", "Encrypt", "Decrypt"]
   depends_on           = [module.key_vault, module.aks]
 }
 
 module "key_vault" {
-  source           = "./keyvault"
-  az_rg_name       = module.networking.az_rg_name
-  location         = var.location
-  tenant_id        = var.tenant_id
-  managed_identity = module.aks.managed_identity
+  source            = "./keyvault"
+  subscription_id   = var.subscription_id
+  az_rg_name        = module.networking.az_rg_name
+  location          = var.location
+  tenant_id         = var.tenant_id
+  workload_identity = module.aks.workload_identity
   keypermissionspolicy = [
     "Create",
     "Get",
@@ -79,4 +87,14 @@ module "key_vault" {
     "Recover",
     "List"
   ]
+  depends_on = [module.aks]
+}
+
+module "monitoring" {
+  source          = "./monitoring"
+  subscription_id = var.subscription_id
+  az_rg_name      = module.networking.az_rg_name
+  location        = var.location
+  cluster_id      = module.aks.cluster_id
+  depends_on      = [module.networking, module.aks]
 }

@@ -21,23 +21,23 @@ variable "user_principal_name" {
 }
 
 variable "subscription_id" {
-  description = "Azure subscription ID"
   type        = string
+  description = "Azure subscription ID"
 }
 
 variable "client_id" {
-  description = "Azure Client ID"
   type        = string
+  description = "Azure Client ID"
 }
 
 variable "client_secret" {
-  description = "Azure Client Secret"
   type        = string
+  description = "Azure Client Secret"
 }
 
 variable "tenant_id" {
-  description = "Azure Tenant ID"
   type        = string
+  description = "Azure Tenant ID"
 }
 
 variable "policy_definition_category" {
@@ -58,17 +58,18 @@ variable "assign_name" {
   default     = "Allowed Locations"
 }
 
-# variable "managed_identity" {
-#   type        = string
-#   description = "Managed Identity ID"
-# }
+variable "cluster_id" {
+  type        = string
+  description = "AKS cluster ID"
+}
 
-# variable "key_vault_id" {
-#   type        = string
-#   description = "Key Vault ID"
-# }
+variable "shared_key" {
+  type        = string
+  description = "Gateway Shared Key"
+  sensitive   = true
+}
 
-# variable "keypermissionspolicy" {
-#   type        = list(any)
-#   description = "Key Vault permission actions"
-# }
+variable "private_dns_zone_name" {
+  type        = string
+  description = "DNS Zone name"
+}
