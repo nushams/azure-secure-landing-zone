@@ -10,15 +10,19 @@ variable "k8s_version" {
   default     = "1.33"
 }
 
-variable "region" {
+variable "subscription_id" {
   type        = string
-  description = "azure region where the aks cluster must be created, this region should match where you have created the resource group, vnet and subnet"
-  default     = "eastus"
+  description = "Subscription ID"
+}
+
+variable "location" {
+  type        = string
+  description = "Default region"
 }
 
 variable "az_rg_name" {
   type        = string
-  description = "azure resource group name where the aks cluster should be created"
+  description = "Azure resource group name where the aks cluster should be created"
 }
 
 variable "dns_prefix" {
@@ -70,4 +74,16 @@ variable "nodepools" {
       node_labels           = { "worker-name" = "worker" }
     }
   }
+}
+
+variable "workload_sa_name" {
+  type        = string
+  description = "Kubernetes service account to permit"
+  default     = "aks-wl-sa"
+}
+
+variable "workload_sa_namespace" {
+  type        = string
+  description = "Kubernetes service account namespace to permit"
+  default     = "aks-wl-sa-ns"
 }

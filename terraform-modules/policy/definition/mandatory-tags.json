@@ -1,0 +1,45 @@
+{
+  "displayName": "Enforce Mandatory Tags for Resource Groups",
+  "description": "This policy ensures that all Resource Groups have an 'env' tag with allowed values.",
+  "mode": "Indexed",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "notEquals": "Microsoft.Resources/subscriptions/resourceGroups"
+        },
+        {
+          "not": {
+            "field": "tags['env']",
+            "in": "[parameters('env')]"
+          }
+        }
+      ]
+    },
+    "then": {
+      "effect": "deny"
+    }
+  },
+  "parameters": {
+    "env": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Environment",
+        "description": "List of allowed environment tags"
+      },
+      "defaultValue": [
+        "dev"
+      ],
+      "allowedValues": [
+        "dev",
+        "prod",
+        "test"
+      ]
+    }
+  },
+  "metadata": {
+    "category": "General",
+    "slug": "mandatory-tags"
+  }
+}

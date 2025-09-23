@@ -29,3 +29,8 @@ output "node_resource_group_id" {
   description = "The auto-generated Resource Group which contains the resources for this Managed Kubernetes Cluster."
   value       = azurerm_kubernetes_cluster.k8s.node_resource_group_id
 }
+
+output "workload_identity" {
+  description = "The client ID of the created managed identity to use for the annotation 'azure.workload.identity/client-id' on your service account"
+  value       = azurerm_user_assigned_identity.workload_identity.principal_id
+}
