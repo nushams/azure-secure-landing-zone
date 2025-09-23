@@ -19,7 +19,6 @@ module "networking" {
   source                = "./networking"
   subscription_id       = var.subscription_id
   password              = var.password
-  shared_key            = var.shared_key
   private_dns_zone_name = var.private_dns_zone_name
 }
 

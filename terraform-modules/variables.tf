@@ -63,12 +63,6 @@ variable "cluster_id" {
   description = "AKS cluster ID"
 }
 
-variable "shared_key" {
-  type        = string
-  description = "Gateway Shared Key"
-  sensitive   = true
-}
-
 variable "private_dns_zone_name" {
   type        = string
   description = "DNS Zone name"
