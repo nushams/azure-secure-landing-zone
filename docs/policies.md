@@ -71,6 +71,6 @@ Policies enforce governance rules across the subscription to maintain **complian
 - **Resource Type:** `azurerm_key_vault_access_policy`  
 - **Scope:** Target Key Vault defined in `var.key_vault_id`  
 - **Assignments:** 
-  - Grants permissions to a Managed Identity (`var.managed_identity`)
+  - Grants permissions to a Managed Identity (`var.workload_identity`)
   - Uses `var.keypermissionspolicy` for key permissions (e.g., `get`, `list`, `encrypt`, `decrypt`)
 - **Purpose:** Ensures workloads (via managed identity) can securely interact with Azure Key Vault, without relying on static secrets. 
