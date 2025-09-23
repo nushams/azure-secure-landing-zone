@@ -27,11 +27,6 @@ variable "onprem_prefix" {
   default     = "onprem"
 }
 
-variable "shared_key" {
-  type        = string
-  description = "Shared key for Gateway connections"
-}
-
 variable "username" {
   type        = string
   description = "Username for Virtual Machines"
