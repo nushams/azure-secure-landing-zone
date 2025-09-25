@@ -46,12 +46,6 @@ variable "policy_definition_category" {
   default     = "General"
 }
 
-variable "allowed_locations" {
-  type        = list(any)
-  description = "List of allowed Locations"
-  default     = ["eastus"]
-}
-
 variable "assign_name" {
   type        = string
   description = "Name of the Assignment"
