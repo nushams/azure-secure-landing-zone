@@ -7,7 +7,7 @@
       "allOf": [
         {
           "field": "type",
-          "notEquals": "Microsoft.Resources/subscriptions/resourceGroups"
+          "equals": "Microsoft.Resources/subscriptions/resourceGroups"
         },
         {
           "not": {
@@ -39,6 +39,7 @@
     }
   },
   "metadata": {
+    "version": "1.0.0",
     "category": "General",
     "slug": "mandatory-tags"
   }

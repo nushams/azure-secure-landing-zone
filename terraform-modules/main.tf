@@ -39,26 +39,12 @@ module "identity" {
   subscription_id     = var.subscription_id
 }
 
-# locals {
-#   policy_definition_file = csvdecode(file("${path.root}/policy/definition/def-policy-csv/policyname.csv"))
-#   policy_data            = { for name, file in data.local_file.definition_file : name => jsondecode(file.content) }
-# }
-
-# data "local_file" "definition_file" {
-#   for_each = { for n, v in local.policy_definition_file : n => v }
-#   filename = "${path.root}/policy/definition/${each.value.policy_ids}.json"
-# }
-
 module "policy_def" {
-  source = "./policy"
-  # policy_definition    = local.policy_data
+  source               = "./policy"
   subscription_id      = var.subscription_id
-  allowed_locations    = var.allowed_locations
   tenant_id            = var.tenant_id
-  key_vault_id         = module.key_vault.key_vault_id
   workload_identity    = module.aks.workload_identity
-  keypermissionspolicy = ["Get", "List", "Encrypt", "Decrypt"]
-  depends_on           = [module.key_vault, module.aks]
+  depends_on           = [module.aks]
 }
 
 module "key_vault" {
