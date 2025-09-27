@@ -52,11 +52,6 @@ variable "assign_name" {
   default     = "Allowed Locations"
 }
 
-variable "cluster_id" {
-  type        = string
-  description = "AKS cluster ID"
-}
-
 variable "private_dns_zone_name" {
   type        = string
   description = "DNS Zone name"
